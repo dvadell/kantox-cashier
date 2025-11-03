@@ -10,10 +10,10 @@ defmodule CashierWeb.Router do
     plug :put_secure_browser_headers
   end
 
-# We have no API for now
-#  pipeline :api do
-#    plug :accepts, ["json"]
-#  end
+  # We have no API for now
+  #  pipeline :api do
+  #    plug :accepts, ["json"]
+  #  end
 
   scope "/", CashierWeb do
     pipe_through :browser
