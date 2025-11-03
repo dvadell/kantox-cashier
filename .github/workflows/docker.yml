@@ -41,10 +41,6 @@ jobs:
         elixir-version: '1.18'
         otp-version: '27.3'
 
-    - name: Setup database
-      run: mix ecto.create && mix ecto.migrate
-      working-directory: ./cashier
-
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
@@ -56,6 +52,10 @@ jobs:
 
     - name: Install dependencies
       run: mix deps.get
+      working-directory: ./cashier
+
+    - name: Setup database
+      run: mix ecto.create && mix ecto.migrate
       working-directory: ./cashier
 
     - name: Check code formatting
