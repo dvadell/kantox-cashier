@@ -78,11 +78,11 @@ jobs:
       working-directory: ./cashier
 
     - name: Build PLT
-      run: mix dialyzer --plt
+      run: MIX_ENV=dev mix dialyzer --plt
       working-directory: ./cashier
 
     - name: Run Dialyzer
-      run: mix dialyzer --format github
+      run: MIX_ENV=dev mix dialyzer --format github
       working-directory: ./cashier
 
     - name: Run Sobelow security check
