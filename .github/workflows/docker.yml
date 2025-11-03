@@ -11,8 +11,79 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.17'
+        otp-version: '27.0'
+
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+      working-directory: ./cashier
+
+    - name: Check code formatting
+      run: mix format --check-formatted
+      working-directory: ./cashier
+
+    - name: Run Credo
+      run: mix credo --strict
+      working-directory: ./cashier
+
+    - name: Restore PLT cache
+      uses: actions/cache@v3
+      with:
+        path: priv/plts
+        key: ${{ runner.os }}-plt-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-plt-
+
+    - name: Create PLTs directory
+      run: mkdir -p priv/plts
+      working-directory: ./cashier
+
+    - name: Build PLT
+      run: mix dialyzer --plt
+      working-directory: ./cashier
+
+    - name: Run Dialyzer
+      run: mix dialyzer --format github
+      working-directory: ./cashier
+
+    - name: Run Sobelow security check
+      run: mix sobelow --config
+      working-directory: ./cashier
+
+    - name: Run tests
+      run: mix test
+      working-directory: ./cashier
+
+    - name: Generate coverage report
+      run: mix coveralls.html
+      working-directory: ./cashier
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: cashier/cover/
   build:
     runs-on: ubuntu-latest
+    needs: test
     permissions:
       contents: read
       packages: write
