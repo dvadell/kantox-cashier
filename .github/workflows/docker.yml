@@ -9,10 +9,27 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  MIX_ENV: test
+  DATABASE_URL: postgres://postgres:postgres@localhost:15432/cashier_test
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cashier_test
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
     - name: Checkout repository
@@ -23,6 +40,10 @@ jobs:
       with:
         elixir-version: '1.18'
         otp-version: '27.3'
+
+    - name: Setup database
+      run: mix ecto.create && mix ecto.migrate
+      working-directory: ./cashier
 
     - name: Restore dependencies cache
       uses: actions/cache@v3
