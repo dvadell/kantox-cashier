@@ -1,7 +1,7 @@
 # Running tests
 ```
 mix format
-mix credo
+mix credo --strict
 mix dialyzer --plt
 mix dialyzer
 mix sobelow --config
