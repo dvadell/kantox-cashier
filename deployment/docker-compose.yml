@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-cashier_password}
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_data_prod2:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cashier -d cashier_prod"]
@@ -17,7 +17,7 @@ services:
       retries: 5
 
   migrate:
-    image: cashier:latest
+    image: ghcr.io/dvadell/kantox-cashier:latest
     command: /app/bin/migrate
     environment:
       DATABASE_URL: postgres://cashier:${DB_PASSWORD:-cashier_password}@db:5432/cashier_prod
@@ -27,9 +27,12 @@ services:
       MIX_ENV: prod
       PHX_SERVER: true
       RELEASE_COOKIE: ${RELEASE_COOKIE}
+    depends_on:
+      db:
+        condition: service_healthy
 
   web:
-    image: cashier:latest
+    image: ghcr.io/dvadell/kantox-cashier:latest
     ports:
       - "4000:4000"
     environment:
@@ -48,4 +51,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data_prod2:
+  postgres_data_prod:
