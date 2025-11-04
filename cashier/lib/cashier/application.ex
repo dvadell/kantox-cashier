@@ -12,6 +12,7 @@ defmodule Cashier.Application do
       Cashier.Repo,
       {DNSCluster, query: Application.get_env(:cashier, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Cashier.PubSub},
+      Cashier.CartSupervisor,
       # Start a worker by calling: Cashier.Worker.start_link(arg)
       # {Cashier.Worker, arg},
       # Start to serve requests, typically the last entry

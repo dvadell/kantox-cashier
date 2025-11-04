@@ -1,4 +1,7 @@
 defmodule Cashier.Catalog.Product do
+  @moduledoc """
+  Schema for products
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
