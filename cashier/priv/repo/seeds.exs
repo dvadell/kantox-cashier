@@ -12,6 +12,11 @@
 
 alias Cashier.Repo
 alias Cashier.Catalog.Product
+alias Cashier.Catalog.Rule
+
+#################
+# Product seeds #
+#################
 
 # Clear existing products
 Repo.delete_all(Product)
@@ -34,3 +39,55 @@ Repo.insert!(%Product{
   name: "Coffee",
   price: Decimal.new("11.23")
 })
+
+###############
+# Rules seeds #
+###############
+
+# Clear existing rules
+Repo.delete_all(Rule)
+
+rules = [
+  %{
+    name: "Green Tea - Buy One Get One",
+    code: "GREEN_TEA_BOGO",
+    description: "Buy one green tea, get one for free",
+    rule_type: "BOGO",
+    config: %{},
+    conditions: %{
+      "product_code" => "GR1"
+    }
+  },
+  %{
+    name: "Strawberry Bulk Discount",
+    code: "STRAWBERRY_BULK",
+    description: "Buy 3 or more strawberries for £4.50 each",
+    rule_type: "BULK_DISCOUNT",
+    config: %{
+      "price" => "4.50"
+    },
+    conditions: %{
+      "product_code" => "SR1",
+      "min_quantity" => 3
+    }
+  },
+  %{
+    name: "Coffee Bulk Discount",
+    code: "COFFEE_BULK",
+    description: "Buy 3 or more coffees at 2/3 of the price",
+    rule_type: "FRACTIONAL_PRICE",
+    config: %{
+      "price_fraction" => 0.66666
+    },
+    conditions: %{
+      "product_code" => "CF1",
+      "min_quantity" => 3
+    }
+  }
+]
+
+Enum.each(rules, fn rule ->
+  %Rule{}
+  |> Rule.changeset(rule)
+  |> Repo.insert!()
+end)
