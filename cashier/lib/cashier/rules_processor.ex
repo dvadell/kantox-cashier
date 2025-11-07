@@ -54,7 +54,19 @@ defmodule Cashier.RulesProcessor do
         apply_rule(rule, acc_items, plugins)
       end)
 
-    {:ok, %FinalCart{items: final_items}}
+    # Calculate (sub)total
+    acc = Decimal.new("0")
+
+    total =
+      final_items
+      |> Enum.reduce(acc, fn item, acc ->
+        Decimal.add(
+          acc,
+          Decimal.mult(Decimal.new(item.units), item.price)
+        )
+      end)
+
+    {:ok, %FinalCart{items: final_items, total: total}}
   end
 
   # Apply a single rule to the cart items

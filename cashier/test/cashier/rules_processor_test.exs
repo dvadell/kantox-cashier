@@ -15,18 +15,20 @@ defmodule Cashier.RulesProcessorTest do
         ]
       }
 
-      {:ok, %FinalCart{items: items}} = RulesProcessor.process(cart_details)
+      {:ok, %FinalCart{items: items, total: total}} = RulesProcessor.process(cart_details)
 
       assert length(items) == 1
       assert List.first(items).source == :user
+      assert total == Decimal.new("3.11")
     end
 
     test "handles empty cart" do
       cart_details = %CartDetails{items: []}
 
-      {:ok, %FinalCart{items: items}} = RulesProcessor.process(cart_details)
+      {:ok, %FinalCart{items: items, total: total}} = RulesProcessor.process(cart_details)
 
       assert items == []
+      assert total == Decimal.new("0")
     end
 
     test "applies all matching rules from database" do
@@ -48,7 +50,7 @@ defmodule Cashier.RulesProcessorTest do
         ]
       }
 
-      {:ok, %FinalCart{items: items}} = RulesProcessor.process(cart_details)
+      {:ok, %FinalCart{items: items, total: total}} = RulesProcessor.process(cart_details)
 
       # Should have original + free item
       assert length(items) == 2
@@ -57,6 +59,7 @@ defmodule Cashier.RulesProcessorTest do
 
       assert length(user_items) == 1
       assert length(rule_items) == 1
+      assert total == Decimal.new("6.22")
     end
 
     test "Let it fail when plugin module doesn't exist" do
@@ -117,13 +120,14 @@ defmodule Cashier.RulesProcessorTest do
         ]
       }
 
-      {:ok, %FinalCart{items: items}} = RulesProcessor.process(cart_details)
+      {:ok, %FinalCart{items: items, total: total}} = RulesProcessor.process(cart_details)
 
       assert length(items) == 3
 
       # Check strawberry price was updated
       strawberry = Enum.find(items, &(&1.code == "SR1"))
       assert Decimal.equal?(strawberry.price, Decimal.new("4.50"))
+      assert total == Decimal.new("19.72")
     end
 
     test "handles configuration with empty plugins map" do

@@ -4,9 +4,10 @@ defmodule Cashier.FinalCart do
   No functions, just a struct.
   """
 
-  defstruct items: []
+  defstruct items: [], total: Decimal.new("0")
 
   @type t :: %__MODULE__{
-          items: list(map())
+          items: list(map()),
+          total: Decimal.t()
         }
 end

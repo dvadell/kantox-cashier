@@ -8,10 +8,12 @@ defmodule Cashier.FinalCartTest do
       final_cart = %FinalCart{
         items: [
           %{code: "GR1", name: "Green tea", price: Decimal.new("3.11"), units: 1, source: :user}
-        ]
+        ],
+        total: Decimal.new("0")
       }
 
       assert length(final_cart.items) == 1
+      assert final_cart.total == Decimal.new("0")
     end
 
     test "can be created empty" do
