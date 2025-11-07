@@ -78,7 +78,12 @@ defmodule Cashier.RulesProcessorTest do
         ]
       }
 
-      assert_raise UndefinedFunctionError, fn -> RulesProcessor.process(cart_details) end
+      {:ok, final_cart} = RulesProcessor.process(cart_details)
+      [final_cart_items] = final_cart.items
+      [cart_details_items] = cart_details.items
+
+      assert final_cart_items.units == cart_details_items.units
+      assert final_cart_items.price == cart_details_items.price
     end
 
     test "processes multiple rules in sequence" do

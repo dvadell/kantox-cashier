@@ -5,6 +5,8 @@ defmodule Cashier.RulesProcessor do
   This is the engine that runs all rule plugins!
   """
 
+  import Ecto.Query
+
   alias Cashier.CartDetails
   alias Cashier.Catalog.Rule
   alias Cashier.FinalCart
@@ -28,12 +30,19 @@ defmodule Cashier.RulesProcessor do
 
   """
   def process(%CartDetails{items: items}) do
-    # Get all rules from database
-    # DMV: where rule_name in [ ... ] and active == true order by priority.
-    rules_config = Repo.all(Rule)
-
     # Get plugin configuration
     plugins = Application.get_env(:cashier, __MODULE__)[:plugins] || %{}
+
+    # We may rules that have no plugin capable of managing them (like old promotions)
+    existing_rule_types = Map.keys(plugins)
+
+    # Get the rules by priority, only active rules
+    rules_config =
+      Rule
+      |> where([r], r.rule_type in ^existing_rule_types)
+      |> where([r], r.active == true)
+      |> order_by([r], asc: r.priority)
+      |> Repo.all()
 
     # Items added by the user have source: :user to distinguish them from
     # the items added by the rules
