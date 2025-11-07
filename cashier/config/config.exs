@@ -51,6 +51,13 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :cashier, Cashier.RulesProcessor,
+  plugins: %{
+    "BOGO" => Cashier.Rule.BOGO,
+    "BULK_DISCOUNT" => Cashier.Rule.Bulk_Discount,
+    "FRACTIONAL_PRICE" => Cashier.Rule.Fractional_Price,
+  }
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
