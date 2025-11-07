@@ -20,12 +20,12 @@ Let's go through the modules involved in this workflow
 
 ## Cashier.Cart
 
-This is a simple GenServer with a :one_to_one Supervisor, defined in `lib/cashier/cart.ex`. Each cart is identified by a cashier_id and is registered in the global CartRegistry. It stores only the a list of items that the user adds to the cart. Example:
+This is a simple GenServer with a :one_to_one DynamicSupervisor, defined in `lib/cashier/cart.ex`. Each cart is identified by a cashier_id and is registered in the global CartRegistry. It stores only the list of items that the user adds to the cart. Example:
 
 ```
 iex(1)> alias Cashier.Cart
 Cashier.Cart
-iex(2)> Cart.start_link(cashier_id: "cashier_123")
+iex(2)> Cashier.CartSupervisor.start_cart("cashier_123")
 {:ok, #PID<0.344.0>}
 iex(3)> Cart.add_item("cashier_123", "GR1")
 :ok
@@ -33,7 +33,11 @@ iex(4)> Cart.add_item("cashier_123", "CF1")
 :ok
 iex(5)> Cart.get_items("cashier_123")
 ["GR1", "CF1"]
-
+iex(6)> Cart.remove("cashier_123")
+:ok
+iex(7)> Cashier.Cart.exists?("cashier_123")
+false
+```
 
 ## Cashier.CartDetails
 
@@ -57,9 +61,50 @@ SELECT p0."code", p0."name", p0."price" FROM "products" AS p0 WHERE (p0."code" =
 
 ## Cashier.RulesProcessor
 
+This module is the orchestrator or engine of your pricing rules system. It's the central module that takes a cart with items and applies all the promotional rules to calculate the final pricing.
 
+The Cashier application includes a flexible, plugin-based rules system that allows you to apply dynamic pricing strategies to carts. Rules as configuration are stored in the database and processed through registered plugins (see `config/config.exs`).
 
+### Cashier.RulePlugin
 
+Each rule plugin implements the `Cashier.RulePlugin` behavior and processes cart items independently. The `RulesProcessor` queries only active rules that have registered plugins, optimizing database performance by filtering inactive or unsupported rules. Rules are applied sequentially based on their priority, allowing you to control the order of operations when multiple promotions affect the same products. The final cart includes all original items (marked with `source: :user`) plus any items added by rules (marked with `source: :rule`), such as free items from BOGO promotions.
+
+To add a new rule type, create a module that implements the `Cashier.RulePlugin` behavior with an `apply/2` function, then register it in your `config/config.exs` under the `:plugins` key. The system automatically discovers and applies rules based on their `rule_type` field matching your plugin configuration. Rules can be activated, deactivated, or re-prioritized directly in the database without requiring application restarts.
+
+### Available Rule Plugins
+
+* Buy One Get One (BOGO)
+
+**Example Configuration:**
+```
+%{
+  rule_type: "BOGO",
+  config: %{},
+  conditions: %{"product_code" => "GR1"}
+}
+```
+
+* Bulk Discount
+
+**Example Configuration:**
+```
+%{
+  rule_type: "BULK_DISCOUNT",
+  config: %{"price" => "4.50"},
+  conditions: %{"product_code" => "SR1", "min_quantity" => 3}
+}
+```
+
+* Fractional Price
+
+**Example Configuration:**
+```
+%{
+  rule_type: "FRACTIONAL_PRICE",
+  config: %{"price_fraction" => 0.66666},  # 2/3 of original price
+  conditions: %{"product_code" => "CF1", "min_quantity" => 3}
+}
+```
 
 
 # Future 
