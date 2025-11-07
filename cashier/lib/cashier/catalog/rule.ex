@@ -5,6 +5,23 @@ defmodule Cashier.Catalog.Rule do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @typedoc "Rule struct"
+  @type t() :: %__MODULE__{
+          id: term(),
+          name: String.t(),
+          code: String.t(),
+          description: String.t(),
+          rule_type: String.t(),
+          config: map() | nil,
+          conditions: map() | nil,
+          priority: integer(),
+          active: boolean(),
+          start_date: DateTime.t() | nil,
+          end_date: DateTime.t() | nil,
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   schema "rules" do
     field :name, :string
     field :code, :string

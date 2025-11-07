@@ -54,8 +54,8 @@ config :phoenix, :json_library, Jason
 config :cashier, Cashier.RulesProcessor,
   plugins: %{
     "BOGO" => Cashier.Rule.BOGO,
-    "BULK_DISCOUNT" => Cashier.Rule.Bulk_Discount,
-    "FRACTIONAL_PRICE" => Cashier.Rule.Fractional_Price,
+    "BULK_DISCOUNT" => Cashier.Rule.BulkDiscount,
+    "FRACTIONAL_PRICE" => Cashier.Rule.FractionalPrice
   }
 
 # Import environment specific config. This must remain at the bottom
