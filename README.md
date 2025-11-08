@@ -37,7 +37,7 @@ mix phx.server
 ```
 
 > [!NOTE]
-> These last instructions, "Run Phoenix", comes from the top of my head. It's a normal phoenix project. Please be creative :)
+> These last instructions, "Run Phoenix", come from the top of my head. It's a normal phoenix project. Please be creative :)
 
 6. Go to http://localhost:4000/
 
