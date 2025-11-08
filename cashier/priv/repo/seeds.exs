@@ -56,7 +56,8 @@ rules = [
     config: %{},
     conditions: %{
       "product_code" => "GR1"
-    }
+    },
+    active: true
   },
   %{
     name: "Strawberry Bulk Discount",
@@ -69,7 +70,8 @@ rules = [
     conditions: %{
       "product_code" => "SR1",
       "min_quantity" => 3
-    }
+    },
+    active: true
   },
   %{
     name: "Coffee Bulk Discount",
@@ -82,7 +84,8 @@ rules = [
     conditions: %{
       "product_code" => "CF1",
       "min_quantity" => 3
-    }
+    },
+    active: true
   }
 ]
 
