@@ -14,7 +14,7 @@ defmodule CashierWeb.Components.CartItem do
           <h3 class="text-gray-800">{@item.name}</h3>
           <p class="text-sm text-gray-500">
             <span
-              class="border border-gray-300 px-[5px]"
+              class="border border-gray-300 px-[5px] cursor-pointer hover:bg-gray-100"
               phx-click="remove_item"
               phx-value-item-id={@item.code}
             >
@@ -22,7 +22,7 @@ defmodule CashierWeb.Components.CartItem do
             </span>
             <span class="border border-gray-300 px-[5px]">{@item.units}</span>
             <span
-              class="border border-gray-300 px-[5px]"
+              class="border border-gray-300 px-[5px] cursor-pointer hover:bg-gray-100"
               phx-click="add_item"
               phx-value-item-id={@item.code}
             >
