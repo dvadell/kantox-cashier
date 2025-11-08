@@ -1,15 +1,15 @@
 defmodule CashierWeb.CashierController do
   use CashierWeb, :live_view
 
-  alias Cashier.CartSupervisor
   alias Cashier.Cart
   alias Cashier.CartDetails
+  alias Cashier.CartSupervisor
   alias Cashier.RulesProcessor
 
   def mount(_params, session, socket) do
-    # DMV: exists?
     cashier_id = session["cashier_id"]
-    Cashier.CartSupervisor.start_cart(cashier_id)
+    CartSupervisor.start_cart(cashier_id)
+
     socket =
       socket
       |> assign(:cashier_id, cashier_id)
@@ -41,7 +41,6 @@ defmodule CashierWeb.CashierController do
     with cart_items <- Cart.get_items(cart_id),
          {:ok, cart_details} <- CartDetails.new(cart_items),
          {:ok, final_cart} <- RulesProcessor.process(cart_details) do
-      IO.inspect(final_cart)
       final_cart
     end
   end
