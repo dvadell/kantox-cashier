@@ -6,35 +6,41 @@ defmodule CashierWeb.CashierController do
   alias Cashier.CartDetails
   alias Cashier.RulesProcessor
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     # DMV: exists?
-    cart_id = "cashier_123"
-    Cashier.CartSupervisor.start_cart(cart_id)
-    {:ok, assign(socket, :final_cart, get_cart_status(cart_id))}
+    cashier_id = session["cashier_id"]
+    Cashier.CartSupervisor.start_cart(cashier_id)
+    socket =
+      socket
+      |> assign(:cashier_id, cashier_id)
+      |> assign(:final_cart, get_cart_status(cashier_id))
+
+    {:ok, socket}
   end
 
   # ADD an item
   def handle_event("add_item", %{"item-id" => item_id}, socket) do
-    cart_id = "cashier_123"
-    Cart.add_item(cart_id, item_id)
-    final_cart = get_cart_status(cart_id)
-    socket = assign(socket, :final_cart, final_cart)
+    cashier_id = socket.assigns.cashier_id
+    Cart.add_item(cashier_id, item_id)
+    socket = assign(socket, :final_cart, get_cart_status(cashier_id))
+
     {:noreply, socket}
   end
 
   # The RESTART button
   def handle_event("restart", _params, socket) do
-    cart_id = "cashier_123"
-    Cart.clear(cart_id)
-    final_cart = get_cart_status(cart_id)
+    cashier_id = socket.assigns.cashier_id
+    Cart.clear(cashier_id)
+    final_cart = get_cart_status(cashier_id)
     socket = assign(socket, :final_cart, final_cart)
+
     {:noreply, socket}
   end
 
   def get_cart_status(cart_id) do
-    with cart_items <- Cashier.Cart.get_items(cart_id),
-         {:ok, cart_details} <- Cashier.CartDetails.new(cart_items),
-         {:ok, final_cart} <- Cashier.RulesProcessor.process(cart_details) do
+    with cart_items <- Cart.get_items(cart_id),
+         {:ok, cart_details} <- CartDetails.new(cart_items),
+         {:ok, final_cart} <- RulesProcessor.process(cart_details) do
       IO.inspect(final_cart)
       final_cart
     end
