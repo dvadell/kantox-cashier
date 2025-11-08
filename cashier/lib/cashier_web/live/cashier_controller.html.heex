@@ -1,72 +1,66 @@
-  <body>
-      
-<div class="flex gap-4">
-  <div class="flex-[2]">
-    <div class="overflow-x-auto">
-    <table class="table table-zebra">
-      <thead class="bg-gray-600 text-white">
-        <tr>
-          <th>Code</th>
-          <th>Name</th>
-          <th>Unit Price</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr>
-            <td>GR1</td>
-            <td>Green tea</td>
-            <td>£3.11 <button>ADD</button></td>
-          </tr>
-          <tr>
-            <td>SR1</td>
-            <td>Strawberries</td>
-            <td>£5.00 <button>ADD</button></td>
-          </tr>
-          <tr>
-            <td>CF1</td>
-            <td>Coffee</td>
-            <td>£11.23 <button>ADD</button></td>
-          </tr>
-      </tbody>
-    </table>
-    </div>
-</div>
-
-
-  <div class="flex-[1]">
-    <div class="overflow-x-auto">
-    <table class="table table-zebra">
-      <thead class="bg-gray-600 text-white">
-        <tr>
-          <th>Code</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Units</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= for item <- @final_cart.items do %>
-          <tr>
-            <td><%= item.code %></td>
-            <td><%= item.name %></td>
-            <td>$<%= item.price %></td>
-            <td><%= item.units %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-    </div>
-      <p>Total: <%= @final_cart.total %></p>
-</div>
-</div>
-
-
-
-
-
-<hr>
-
-     <div>
-        <div class="frame-18"><div class="text-wrapper-12">RESTART</div></div>
+<body>
+  <div class="flex gap-4">
+    <div class="flex-[2]">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead class="bg-gray-600 text-white">
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Unit Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GR1</td>
+              <td>Green tea</td>
+              <td>£3.11 <button phx-click="add_item" phx-value-item-id="GR1"> Add </button></td>
+            </tr>
+            <tr>
+              <td>SR1</td>
+              <td>Strawberries</td>
+              <td>£5.00 <button phx-click="add_item" phx-value-item-id="SR1"> Add </button></td>
+            </tr>
+            <tr>
+              <td>CF1</td>
+              <td>Coffee</td>
+              <td>£11.23 <button phx-click="add_item" phx-value-item-id="CF1"> Add </button></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
+
+    <div class="flex-[1]">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead class="bg-gray-600 text-white">
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Units</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for item <- @final_cart.items do %>
+              <tr>
+                <td>{item.code}</td>
+                <td>{item.name}</td>
+                <td>${Decimal.round(item.price, 2)}</td>
+                <td>{item.units}</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <p>Total: {Decimal.round(@final_cart.total,2)}</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <div>
+    <button phx-click="restart">RESTART</button>
+  </div>
 </body>
