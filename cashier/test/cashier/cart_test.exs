@@ -74,6 +74,45 @@ defmodule Cashier.CartTest do
     end
   end
 
+  describe "remove_item/2" do
+    setup %{cashier_id: cashier_id} do
+      {:ok, _pid} = CartSupervisor.start_cart(cashier_id)
+      :ok
+    end
+
+    test "removes a product code from the cart", %{cashier_id: cashier_id} do
+      assert :ok = Cart.add_item(cashier_id, "GR1")
+      assert ["GR1"] = Cart.get_items(cashier_id)
+      assert :ok = Cart.remove_item(cashier_id, "GR1")
+      assert [] = Cart.get_items(cashier_id)
+    end
+
+    test "remove multiple items from the cart", %{cashier_id: cashier_id} do
+      assert :ok = Cart.add_item(cashier_id, "GR1")
+      assert :ok = Cart.add_item(cashier_id, "SR1")
+      assert :ok = Cart.add_item(cashier_id, "CF1")
+
+      assert ["GR1", "SR1", "CF1"] = Cart.get_items(cashier_id)
+
+      assert :ok = Cart.remove_item(cashier_id, "SR1")
+      assert :ok = Cart.remove_item(cashier_id, "CF1")
+
+      assert ["GR1"] = Cart.get_items(cashier_id)
+    end
+
+    test "removes one of duplicate items from the cart", %{cashier_id: cashier_id} do
+      assert :ok = Cart.add_item(cashier_id, "GR1")
+      assert :ok = Cart.add_item(cashier_id, "GR1")
+      assert :ok = Cart.add_item(cashier_id, "GR1")
+
+      assert ["GR1", "GR1", "GR1"] = Cart.get_items(cashier_id)
+
+      assert :ok = Cart.remove_item(cashier_id, "GR1")
+
+      assert ["GR1", "GR1"] = Cart.get_items(cashier_id)
+    end
+  end
+
   describe "get_items/1" do
     setup %{cashier_id: cashier_id} do
       {:ok, _pid} = CartSupervisor.start_cart(cashier_id)

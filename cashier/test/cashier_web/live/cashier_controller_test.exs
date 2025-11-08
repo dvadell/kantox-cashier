@@ -66,7 +66,7 @@ defmodule CashierWeb.CashierControllerTest do
 
       {:ok, _view, html} = live(conn, "/")
 
-      assert html =~ "Total: 0"
+      assert html =~ "£0.00"
     end
 
     test "assigns cart with existing items if present", %{conn: conn, cashier_id: cashier_id} do
@@ -129,6 +129,42 @@ defmodule CashierWeb.CashierControllerTest do
       render_hook(view, "add_item", %{"item-id" => "GR1"})
 
       assert view.module == CashierWeb.CashierController
+    end
+  end
+
+  describe "handle_event/3 - remove_item" do
+    test "remove an item from cart", %{conn: conn, cashier_id: cashier_id} do
+      conn = init_test_session(conn, %{"cashier_id" => cashier_id})
+      {:ok, view, _html} = live(conn, "/")
+
+      # Directly trigger the event handler
+      render_hook(view, "add_item", %{"item-id" => "GR1"})
+
+      items = Cart.get_items(cashier_id)
+      assert "GR1" in items
+
+      render_hook(view, "remove_item", %{"item-id" => "GR1"})
+
+      items = Cart.get_items(cashier_id)
+      refute "GR1" in items
+    end
+
+    test "removes one of duplicate items", %{conn: conn, cashier_id: cashier_id} do
+      conn = init_test_session(conn, %{"cashier_id" => cashier_id})
+      {:ok, view, _html} = live(conn, "/")
+
+      render_hook(view, "add_item", %{"item-id" => "GR1"})
+      render_hook(view, "add_item", %{"item-id" => "GR1"})
+
+      items = Cart.get_items(cashier_id)
+      # Should have 2 instances of GR1
+      assert length(Enum.filter(items, &(&1 == "GR1"))) == 2
+
+      render_hook(view, "remove_item", %{"item-id" => "GR1"})
+
+      items = Cart.get_items(cashier_id)
+      # Should have 1 instance of GR1
+      assert length(Enum.filter(items, &(&1 == "GR1"))) == 1
     end
   end
 

@@ -1,5 +1,6 @@
 defmodule CashierWeb.CashierController do
   use CashierWeb, :live_view
+  import CashierWeb.Components.CartItem
 
   alias Cashier.Cart
   alias Cashier.CartDetails
@@ -22,6 +23,15 @@ defmodule CashierWeb.CashierController do
   def handle_event("add_item", %{"item-id" => item_id}, socket) do
     cashier_id = socket.assigns.cashier_id
     Cart.add_item(cashier_id, item_id)
+    socket = assign(socket, :final_cart, get_cart_status(cashier_id))
+
+    {:noreply, socket}
+  end
+
+  # REMOVE an item
+  def handle_event("remove_item", %{"item-id" => item_id}, socket) do
+    cashier_id = socket.assigns.cashier_id
+    Cart.remove_item(cashier_id, item_id)
     socket = assign(socket, :final_cart, get_cart_status(cashier_id))
 
     {:noreply, socket}

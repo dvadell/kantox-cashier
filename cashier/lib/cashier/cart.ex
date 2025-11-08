@@ -46,6 +46,19 @@ defmodule Cashier.Cart do
   end
 
   @doc """
+  Removes an item from the cashier's cart.
+      
+  ## Examples
+
+      iex> Cashier.Cart.remove_item("cashier_123", "GR1")
+      :ok
+  """
+  @spec remove_item(cashier_id(), product_code()) :: :ok
+  def remove_item(cashier_id, product_code) do
+    GenServer.call(via_tuple(cashier_id), {:remove_item, product_code})
+  end
+
+  @doc """
   Returns all items in the cashier's cart.
 
   ## Examples
@@ -132,6 +145,17 @@ defmodule Cashier.Cart do
         ) :: {:reply, :ok, t()}
   def handle_call({:add_item, product_code}, _from, %__MODULE__{items: items} = state) do
     new_state = %{state | items: items ++ [product_code]}
+    {:reply, :ok, new_state}
+  end
+
+  @impl true
+  @spec handle_call(
+          {:remove_item, product_code()},
+          GenServer.from(),
+          t()
+        ) :: {:reply, :ok, t()}
+  def handle_call({:remove_item, product_code}, _from, %__MODULE__{items: items} = state) do
+    new_state = %{state | items: items -- [product_code]}
     {:reply, :ok, new_state}
   end
 
