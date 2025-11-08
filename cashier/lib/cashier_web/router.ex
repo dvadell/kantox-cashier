@@ -18,7 +18,7 @@ defmodule CashierWeb.Router do
   scope "/", CashierWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", CashierController
   end
 
   # Other scopes may use custom stacks.
