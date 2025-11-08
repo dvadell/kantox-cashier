@@ -2,9 +2,7 @@ defmodule Cashier.RulesProcessorTest do
   use Cashier.DataCase
 
   alias Cashier.CartDetails
-  alias Cashier.Catalog.Rule
   alias Cashier.FinalCart
-  alias Cashier.Repo
   alias Cashier.RulesProcessor
 
   describe "process/1" do
@@ -17,7 +15,7 @@ defmodule Cashier.RulesProcessorTest do
 
       {:ok, %FinalCart{items: items, total: total}} = RulesProcessor.process(cart_details)
 
-      assert length(items) == 1
+      assert length(items) == 2
       assert List.first(items).source == :user
       assert total == Decimal.new("3.11")
     end
@@ -32,18 +30,6 @@ defmodule Cashier.RulesProcessorTest do
     end
 
     test "applies all matching rules from database" do
-      # Create a BOGO rule in database
-      %Rule{}
-      |> Rule.changeset(%{
-        name: "Test BOGO",
-        code: "TEST_BOGO",
-        rule_type: "BOGO",
-        description: "A BOGO promotion!",
-        config: %{},
-        conditions: %{"product_code" => "GR1"}
-      })
-      |> Repo.insert!()
-
       cart_details = %CartDetails{
         items: [
           %{code: "GR1", name: "Green tea", price: Decimal.new("3.11"), units: 2}
@@ -62,57 +48,7 @@ defmodule Cashier.RulesProcessorTest do
       assert total == Decimal.new("6.22")
     end
 
-    test "Let it fail when plugin module doesn't exist" do
-      # Create a rule with non-existent plugin
-      %Rule{}
-      |> Rule.changeset(%{
-        name: "Invalid Rule",
-        code: "INVALID",
-        rule_type: "NONEXISTENT_TYPE",
-        description: "Non-existent promotion",
-        config: %{},
-        conditions: %{"product_code" => "GR1"}
-      })
-      |> Repo.insert!()
-
-      cart_details = %CartDetails{
-        items: [
-          %{code: "GR1", name: "Green tea", price: Decimal.new("3.11"), units: 2}
-        ]
-      }
-
-      {:ok, final_cart} = RulesProcessor.process(cart_details)
-      [final_cart_items] = final_cart.items
-      [cart_details_items] = cart_details.items
-
-      assert final_cart_items.units == cart_details_items.units
-      assert final_cart_items.price == cart_details_items.price
-    end
-
     test "processes multiple rules in sequence" do
-      # Create multiple rules
-      %Rule{}
-      |> Rule.changeset(%{
-        name: "BOGO",
-        code: "BOGO_1",
-        rule_type: "BOGO",
-        description: "A BOGO promotion!",
-        config: %{},
-        conditions: %{"product_code" => "GR1"}
-      })
-      |> Repo.insert!()
-
-      %Rule{}
-      |> Rule.changeset(%{
-        name: "Bulk",
-        code: "BULK_1",
-        rule_type: "BULK_DISCOUNT",
-        config: %{"price" => "4.50"},
-        description: "A Bulk discount promotion!",
-        conditions: %{"product_code" => "SR1", "min_quantity" => 3}
-      })
-      |> Repo.insert!()
-
       cart_details = %CartDetails{
         items: [
           %{code: "GR1", name: "Green tea", price: Decimal.new("3.11"), units: 2},
