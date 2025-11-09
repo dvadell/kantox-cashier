@@ -109,3 +109,5 @@ To add a new rule type, create a module that implements the `Cashier.RulePlugin`
 
 # Future 
 * Consider using Horde for production clusters
+* Add a timeout to orphan Carts
+* Add telemetry
