@@ -53,3 +53,8 @@ MIX_ENV=test mix coveralls.html
 
 ## How to deploy
 For the documentation on how to deploy this web app, see [deployment/README.md](https://github.com/dvadell/kantox-cashier/blob/main/deployment/README.md)
+
+# Future 
+* Consider using Horde for production clusters
+* Add a timeout to orphan Carts
+* Add telemetry
