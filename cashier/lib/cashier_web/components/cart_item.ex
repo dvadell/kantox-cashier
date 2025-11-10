@@ -11,7 +11,10 @@ defmodule CashierWeb.Components.CartItem do
     <div class="bg-white p-4 shadow-sm border border-gray-200">
       <div class="flex justify-between items-center">
         <div class="flex-1">
-          <h3 class="text-gray-800">{@item.name}</h3>
+          <h3 class="text-gray-800">
+            {@item.name}
+            {if @item.source == :rule, do: " - FREE"}
+          </h3>
           <p class="text-sm text-gray-500">
             <span
               class="border border-gray-300 px-[5px] cursor-pointer hover:bg-gray-100"
