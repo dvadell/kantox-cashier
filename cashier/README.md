@@ -16,6 +16,8 @@ with cart_items <- Cashier.Cart.get_items(cart_id),
 end
 ```
 
+This is the core of the system and every time the cart is modified, that code runs again to render the liveview page.
+
 Let's go through the modules involved in this workflow
 
 ## Cashier.Cart
@@ -67,9 +69,9 @@ The Cashier application includes a flexible, plugin-based rules system that allo
 
 ### Cashier.RulePlugin
 
-Each rule plugin implements the `Cashier.RulePlugin` behavior and processes cart items independently. The `RulesProcessor` queries only active rules that have registered plugins, optimizing database performance by filtering inactive or unsupported rules. Rules are applied sequentially based on their priority, allowing you to control the order of operations when multiple promotions affect the same products. The final cart includes all original items (marked with `source: :user`) plus any items added by rules (marked with `source: :rule`), such as free items from BOGO promotions.
+Each rule plugin implements the `Cashier.RulePlugin` behaviour and processes cart items independently. The `RulesProcessor` queries only active rules that have registered plugins, optimizing database performance by filtering inactive or unsupported rules. Rules are applied sequentially based on their priority, allowing you to control the order of operations when multiple promotions affect the same products. The final cart includes all original items (marked with `source: :user`) plus any items added by rules (marked with `source: :rule`), such as free items from BOGO promotions.
 
-To add a new rule type, create a module that implements the `Cashier.RulePlugin` behavior with an `apply/2` function, then register it in your `config/config.exs` under the `:plugins` key. The system automatically discovers and applies rules based on their `rule_type` field matching your plugin configuration. Rules can be activated, deactivated, or re-prioritized directly in the database without requiring application restarts.
+To add a new rule type, create a module that implements the `Cashier.RulePlugin` behaviour with an `apply/2` function, then register it in your `config/config.exs` under the `:plugins` key. The system automatically discovers and applies rules based on their `rule_type` field matching your plugin configuration. Rules can be activated, deactivated, or re-prioritized directly in the database without requiring application restarts.
 
 ### Available Rule Plugins
 
@@ -105,6 +107,45 @@ To add a new rule type, create a module that implements the `Cashier.RulePlugin`
   conditions: %{"product_code" => "CF1", "min_quantity" => 3}
 }
 ```
+
+## Cashier.FinalCart
+This is just a module that defines the struct for the final representation of the cart that would be fed to the liveview template through the controller.
+
+A `%Cashier.FinalCart{}` looks like this:
+```
+%Cashier.FinalCart{
+  items: [
+    %{
+      code: "GR1",
+      name: "Green tea",
+      source: :user,
+      price: Decimal.new("3.11"),
+      units: 1
+    },
+    %{
+      code: "SR1",
+      name: "Strawberries",
+      source: :user,
+      price: Decimal.new("5.00"),
+      units: 2
+    },
+    %{
+      code: "GR1",
+      name: "Green tea",
+      source: :rule,
+      price: Decimal.new("0"),
+      units: 1
+    }
+  ],
+  total: Decimal.new("13.11")
+}
+```
+
+## CashierWeb.CashierController
+This is the liveview process that would handle the web interface for the cashier. It has all the handles for the changes in the state of the liveview page, and recalculates the `%Cashier.FinalCart{}` every time (see Approach at the beginning of this document).
+
+## CashierWeb.Components.CartItem
+This is a small component to render the HTML for one of the itmes that the user is adding to the cart.
 
 
 # Future 
