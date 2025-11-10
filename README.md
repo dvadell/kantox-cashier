@@ -51,10 +51,8 @@ MIX_ENV=test mix test
 MIX_ENV=test mix coveralls.html
 ```
 
+8. Work on your code, push it to a new branch and create a PR. Once the PR is merged to main, the CI/CD pipeline ( see [.github/workflows](https://github.com/dvadell/kantox-cashier/tree/main/.github/workflows) ) will run tests and check for security and formatting issues, and finally create a container image in github's registry.
+
 ## How to deploy
 For the documentation on how to deploy this web app, see [deployment/README.md](https://github.com/dvadell/kantox-cashier/blob/main/deployment/README.md)
 
-# Future 
-* Consider using Horde for production clusters
-* Add a timeout to orphan Carts
-* Add telemetry
